@@ -1,0 +1,30 @@
+body {
+    margin: 0;
+}
+[view_id="main-list"] {
+    background-color:#eeefef;
+}
+.webix_list_item {
+    border-bottom: 0;
+}
+[view_id="header"] {
+    background-color: #657685;
+    /* color: white !important; */
+}
+[view_id="header"] .webix_el_box {
+    color: white;
+    font-weight: 700;
+}
+[view_id="header"] .webix_icon_btn.mdi.mdi-account {
+    color: white;
+}
+.webix_transparent .webix_button {
+    color: white;
+    font-weight: 700;
+}
+/* [view_id="$template2"] {
+    flex-shrink: 0;
+} */
+[view_id="footer"] .webix_template {
+    text-align: center;
+}
