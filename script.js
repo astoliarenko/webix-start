@@ -109,6 +109,7 @@ function clearForm() {
     webix.confirm("Clear the form?")
     .then( () => {
         $$(mainFormId).clear();
+        $$(mainFormId).clearValidation();
     });
 }
 
@@ -119,20 +120,17 @@ function addItem() {
         webix.message({text: "film info was added to table", type:"success"});
         $$("main-datatable").add(itemData);
         $$(mainFormId).clear();
-        $$(mainFormId).clearValidation();
     }
 }
 
 webix.ui({
     view:"popup",
     id:"myPopup",
-    width: 300,
-    move: false,
+    width: widthPopUp,
     head:"My window",
     body:{
         view: "list",
         id: "pop-list",
-        width: widthPopUp,
         autoheight: true,
         template: "#title#",
         select: true,
