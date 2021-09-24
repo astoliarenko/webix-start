@@ -1,0 +1,19 @@
+body {
+    margin: 0;
+}
+.main-list-style {
+    background-color:#eeefef;
+}
+.main-list-style .webix_list_item {
+    border-bottom: 0;
+}
+.footer-style .webix_template {
+    text-align: center;
+}
+.main-list-label-style {
+    text-align: center;
+    background-color:#eeefef;
+}
+.main-list-label-style .webix_el_box {
+    color: green;
+}
