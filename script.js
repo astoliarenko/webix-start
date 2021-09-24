@@ -1,29 +1,34 @@
 var label = {
     view: "label",
-    id: "label",
+    id: "header-label",
     label: "My App",
-    inputWidth:100,
-    align: "left"
+}
+
+var mainListLabel = {
+    view: "label",
+    id: "main-list-label",
+    label: "<span class='webix_icon wxi-check'></span> Connected",
+    css: "main-list-label-style",
 }
 
 var button = {
     view: "button",
+    id: "header-button",
     type: "icon",
     icon: "mdi mdi-account",
     label: "Profile",
     width: 150,
     css: "webix_transparent",
-    // align: "right"
 }
 
 var list = {
     view: "list",
     id: "main-list",
     width: 250,
-    // height: 200,
     template: "#title#",
     select: true,
     scroll: false,
+    css: "main-list-style",
     data: [
       { id:1, title:"Dashboard" },
       { id:2, title:"Users" },
@@ -35,11 +40,9 @@ var list = {
 var datatable = {
     view: "datatable",
     id: "main-datatable",
-    // data: small_film_set,
-    data: transformData(small_film_set),
+    data: small_film_set,
     autoConfig: true,
     scrollX: false,
-    scrollY: true
 }
 
 var form = {
@@ -47,8 +50,7 @@ var form = {
     view: "form",
     id: "main-form",
     elements: [
-        // { view:"label", label:"EDIT FILMS" },
-        { view:"template", template: "EDIT FILMS", type:"section" },
+        { view:"template", template: "edit films", type:"section" },
         {
             margin: 10,
             rows: [
@@ -71,39 +73,32 @@ var form = {
                     ]
                 }
             ]
-        }
+        },
+        {}
     ]
 }
 
-function transformData(data) {
-    return data.map((item) => {
-        return {
-            title: item.title,
-            year: item.year,
-            votes: item.votes,
-            ratings: item.raitings,
-            rank: item.rank,
-        }
-    })
-};
-
 webix.ui({
-    // container: "root",
     rows: [
         {
+            view: "toolbar",
             id: "header",
             paddingX: 12,
+            css: "webix_dark",
             cols: [label, button]
         },
         {
-            // autoheight: true,
-            // height: 600,
             id: "main",
             cols: [
-                list, 
+            {
+                rows: [
+                    list,
+                    mainListLabel
+                ]
+            },
                 {view: "resizer"}, 
-                datatable, 
-                {rows: [form, {}]}
+                datatable,
+                form
             ]
         },
         {   
@@ -111,6 +106,7 @@ webix.ui({
             view: "template",
             template: "The software is provided by <a href='https://webix.com'>https://webix.com</a>. All rights reserved (c)",
             autoheight: true,
+            css: "footer-style",
             align: "center"
         }
     ]
