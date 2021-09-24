@@ -1,17 +1,17 @@
-var label = {
+const label = {
     view: "label",
     id: "header-label",
     label: "My App",
 }
 
-var mainListLabel = {
+const mainListLabel = {
     view: "label",
     id: "main-list-label",
     label: "<span class='webix_icon wxi-check'></span> Connected",
     css: "main-list-label-style",
 }
 
-var button = {
+const button = {
     view: "button",
     id: "header-button",
     type: "icon",
@@ -24,7 +24,7 @@ var button = {
     }
 }
 
-var list = {
+const list = {
     view: "list",
     id: "main-list",
     width: 250,
@@ -40,7 +40,7 @@ var list = {
     ]
   };
 
-var datatable = {
+const datatable = {
     view: "datatable",
     id: "main-datatable",
     data: small_film_set,
@@ -48,7 +48,7 @@ var datatable = {
     scrollX: false,
 }
 
-var form = {
+const form = {
     width: 300,
     view: "form",
     id: "main-form",
@@ -59,7 +59,7 @@ var form = {
             rows: [
                 { view:"text", label:"Title", id: "inpTitle", name: "title", invalidMessage: "Title must not be empty" },
                 { view:"text", label:"Year", id: "inpYear", name: "year", invalidMessage: "Ent. year between 1970 and cur."},
-                { view:"text", label:"Ratings", id: "inpRatings", name: "ratings", invalidMessage: "Cannot be empty or 0"},
+                { view:"text", label:"Rating", id: "inpRating", name: "rating", invalidMessage: "Cannot be empty or 0"},
                 { view:"text", label:"Votes", id: "inpVotes", name: "votes", invalidMessage: "Votes must be less than 100000"},
                 {   
                     margin: 10,
@@ -89,54 +89,53 @@ var form = {
         votes: (value) => {
             return value < 100000;
         },
-        ratings: (value) => {
-            return (value != "" && value != 0);
+        rating: (value) => {
+            return (value !== "" && value !== 0);
         }
     },
     on: {
         onValidationError:function(key){
-            webix.message({text:key+" field is incorrect", type:"error"});
+            webix.message({text: `${key} field is incorrect`, type:"error"});
         }
     }
 }
 
+const mainFormId = "main-form";
+const widthPopUp = 300;
+const paddingXToolbar = 12;
+
 function clearForm() {
     webix.confirm("Clear the form?")
     .then( () => {
-        // console.log('clear');
-        $$("main-form").clear();
+        $$(mainFormId).clear();
     });
 }
 
 function addItem() {
-    let res = $$("main-form").validate();
+    let res = $$(mainFormId).validate();
     if (res) {
-        let itemData = $$("main-form").getValues();
-        console.log("данные корректны, будет пуш");
+        let itemData = $$(mainFormId).getValues();
         webix.message({text: "film info was added to table", type:"success"});
         $$("main-datatable").add(itemData);
-        $$("main-form").clear();
+        $$(mainFormId).clear();
     }
 }
 
 webix.ui({
     view:"popup",
     id:"myPopup",
-    // autoheight: true,
-    // высота плохая, лучше бы авто как-то сделать
     height: 72,
     width:300,
     position: function(state) { 
-        state.left = document.documentElement.clientWidth - 300 - 12;
+        state.left = document.documentElement.clientWidth - widthPopUp - paddingXToolbar;
         state.top = 40;
-        
     },
     move: false,
     head:"My window",
     body:{
         view: "list",
         id: "pop-list",
-        width: 300,
+        width: widthPopUp,
         template: "#title#",
         select: true,
         scroll: false,
@@ -152,7 +151,7 @@ webix.ui({
         {
             view: "toolbar",
             id: "header",
-            paddingX: 12,
+            paddingX: paddingXToolbar,
             css: "webix_dark",
             cols: [label, button]
         },
@@ -160,6 +159,7 @@ webix.ui({
             id: "main",
             cols: [
             {
+                // css: "menu",
                 rows: [
                     list,
                     mainListLabel
