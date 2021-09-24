@@ -20,7 +20,8 @@ const button = {
     width: 150,
     css: "webix_transparent",
     click: () => {
-        $$("myPopup").show();
+        $$("myPopup").show($$("header-button").getNode());
+        // $$("myPopup").show();
     }
 }
 
@@ -118,24 +119,21 @@ function addItem() {
         webix.message({text: "film info was added to table", type:"success"});
         $$("main-datatable").add(itemData);
         $$(mainFormId).clear();
+        $$(mainFormId).clearValidation();
     }
 }
 
 webix.ui({
     view:"popup",
     id:"myPopup",
-    height: 72,
-    width:300,
-    position: function(state) { 
-        state.left = document.documentElement.clientWidth - widthPopUp - paddingXToolbar;
-        state.top = 40;
-    },
+    width: 300,
     move: false,
     head:"My window",
     body:{
         view: "list",
         id: "pop-list",
         width: widthPopUp,
+        autoheight: true,
         template: "#title#",
         select: true,
         scroll: false,
