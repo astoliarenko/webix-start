@@ -19,6 +19,9 @@ var button = {
     label: "Profile",
     width: 150,
     css: "webix_transparent",
+    click: () => {
+        $$("myPopup").show();
+    }
 }
 
 var list = {
@@ -54,29 +57,95 @@ var form = {
         {
             margin: 10,
             rows: [
-                { view:"text", label:"Title" },
-                { view:"text", label:"Year" },
-                { view:"text", label:"Ratings" },
-                { view:"text", label:"Votes" },
+                { view:"text", label:"Title", id: "inpTitle", name: "title", invalidMessage: "Title must not be empty" },
+                { view:"text", label:"Year", id: "inpYear", name: "year", invalidMessage: "Ent. year between 1970 and cur."},
+                { view:"text", label:"Ratings", id: "inpRatings", name: "ratings", invalidMessage: "Cannot be empty or 0"},
+                { view:"text", label:"Votes", id: "inpVotes", name: "votes", invalidMessage: "Votes must be less than 100000"},
                 {   
                     margin: 10,
                     cols: [
                         {
                             view: "button",
                             value: "Add new",
-                            css: "webix_primary"
+                            css: "webix_primary",
+                            click: addItem
                         },
                         {
                             view: "button",
                             value: "Clear",
+                            click: clearForm
                         }
                     ]
                 }
             ]
         },
         {}
-    ]
+    ],
+    rules: {
+        title: webix.rules.isNotEmpty,
+        year: (value) => {
+            return (value > 1970 && value <= new Date().getFullYear());
+        },
+        votes: (value) => {
+            return value < 100000;
+        },
+        ratings: (value) => {
+            return (value != "" && value != 0);
+        }
+    },
+    on: {
+        onValidationError:function(key){
+            webix.message({text:key+" field is incorrect", type:"error"});
+        }
+    }
 }
+
+function clearForm() {
+    webix.confirm("Clear the form?")
+    .then( () => {
+        // console.log('clear');
+        $$("main-form").clear();
+    });
+}
+
+function addItem() {
+    let res = $$("main-form").validate();
+    if (res) {
+        let itemData = $$("main-form").getValues();
+        console.log("данные корректны, будет пуш");
+        webix.message({text: "film info was added to table", type:"success"});
+        $$("main-datatable").add(itemData);
+        $$("main-form").clear();
+    }
+}
+
+webix.ui({
+    view:"popup",
+    id:"myPopup",
+    // autoheight: true,
+    // высота плохая, лучше бы авто как-то сделать
+    height: 72,
+    width:300,
+    position: function(state) { 
+        state.left = document.documentElement.clientWidth - 300 - 12;
+        state.top = 40;
+        
+    },
+    move: false,
+    head:"My window",
+    body:{
+        view: "list",
+        id: "pop-list",
+        width: 300,
+        template: "#title#",
+        select: true,
+        scroll: false,
+        data: [
+            { id:1, title:"Settings" },
+            { id:2, title:"Log Out" },
+        ]
+    }
+});
 
 webix.ui({
     rows: [
