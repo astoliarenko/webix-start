@@ -48,10 +48,12 @@ const datatable = {
   scrollX: false,
 };
 
+const mainFormId = "main-form";
+
 const form = {
   width: 300,
   view: "form",
-  id: "main-form",
+  id: mainFormId,
   elements: [
     { view: "template", template: "edit films", type: "section" },
     {
@@ -125,13 +127,15 @@ const form = {
 };
 
 function clearForm() {
+  const mainForm = $$(mainFormId);
   webix.confirm("Clear the form?").then(() => {
-    $$(mainFormId).clear();
-    $$(mainFormId).clearValidation();
+    mainForm.clear();
+    mainForm.clearValidation();
   });
 }
 
 function addItem() {
+  const mainForm = $$(mainFormId);
   let res = mainForm.validate();
   if (res) {
     let itemData = mainForm.getValues();
@@ -140,58 +144,56 @@ function addItem() {
     mainForm.clear();
   }
 }
-// webix.ready( function() {
-webix.ui({
-  view: "popup",
-  id: "myPopup",
-  width: 300,
-  head: "My window",
-  body: {
-    view: "list",
-    id: "pop-list",
-    autoheight: true,
-    template: "#title#",
-    select: true,
-    scroll: false,
-    data: [
-      { id: 1, title: "Settings" },
-      { id: 2, title: "Log Out" },
-    ],
-  },
-});
-
-webix.ui({
-  rows: [
-    {
-      view: "toolbar",
-      id: "header",
-      paddingX: 12,
-      css: "webix_dark",
-      cols: [label, button],
-    },
-    {
-      id: "main",
-      cols: [
-        {
-          // css: "menu",
-          rows: [list, mainListLabel],
-        },
-        { view: "resizer" },
-        datatable,
-        form,
+webix.ready(function () {
+  webix.ui({
+    view: "popup",
+    id: "myPopup",
+    width: 300,
+    head: "My window",
+    body: {
+      view: "list",
+      id: "pop-list",
+      autoheight: true,
+      template: "#title#",
+      select: true,
+      scroll: false,
+      data: [
+        { id: 1, title: "Settings" },
+        { id: 2, title: "Log Out" },
       ],
     },
-    {
-      id: "footer",
-      view: "template",
-      template:
-        "The software is provided by <a href='https://webix.com'>https://webix.com</a>. All rights reserved (c)",
-      autoheight: true,
-      css: "footer-style",
-      align: "center",
-    },
-  ],
-});
-// });
+  });
 
-const mainForm = $$("main-form");
+  webix.ui({
+    rows: [
+      {
+        view: "toolbar",
+        id: "header",
+        paddingX: 12,
+        css: "webix_dark",
+        cols: [label, button],
+      },
+      {
+        id: "main",
+        cols: [
+          {
+            // css: "menu",
+            rows: [list, mainListLabel],
+          },
+          { view: "resizer" },
+          datatable,
+          form,
+        ],
+      },
+      {
+        id: "footer",
+        view: "template",
+        template:
+          "The software is provided by <a href='https://webix.com'>https://webix.com</a>. All rights reserved (c)",
+        autoheight: true,
+        css: "footer-style",
+        align: "center",
+      },
+    ],
+  });
+});
