@@ -28,24 +28,53 @@ const list = {
   view: "list",
   id: "main-list",
   width: 250,
-  template: "#title#",
+  // template: "#title#",
   select: true,
+  on:{
+    onAfterSelect: (id) => { 
+      $$(id).show();
+    }
+  },
   scroll: false,
   css: "main-list-style",
-  data: [
-    { id: 1, title: "Dashboard" },
-    { id: 2, title: "Users" },
-    { id: 3, title: "Products" },
-    { id: 4, title: "Locations" },
-  ],
+  data: [ "Dashboard", "Users", "Products", "Admin" ]
 };
 
 const datatable = {
   view: "datatable",
+  columns: [
+    //css in the first column is not working
+    {id: "rank", header: "Rank", css: "rank", width: 50},
+    {id: "title", header: "Title", fillspace: true},
+    {id: "year", header: "Year"},
+    {id: "rating", header: "Ratings"},
+    {id: "votes", header: "Votes"},
+    {
+      id: "delete",
+      header: "",
+      css: "rank",
+      template: "<span class ='webix_icon wxi-trash removeItemDatatable'></span>",
+      onClick: {
+        removeItemDatatable: function(e, id) {
+          this.removeItemDatatable(id);
+          console.log(this);
+          return false;
+        }
+      }
+    }
+  ],
   id: "main-datatable",
-  data: small_film_set,
+  url: "./data/data.js",
   autoConfig: true,
+  // autowidth: true,
   scrollX: false,
+  // onClick: {
+  //   removeItemDatatable: function(e, id) {
+  //     this.removeItemDatatable(id);
+  //     console.log(this);
+  //     return false;
+  //   }
+  // }
 };
 
 const mainFormId = "main-form";
@@ -126,6 +155,15 @@ const form = {
   },
 };
 
+const mainMultiview  = {
+  cells: [
+    {id: "Dashboard", cols: [datatable, form]},
+    {id: "Users"},
+    {id: "Products"},
+    {id: "Admin"}
+  ]
+};
+
 function clearForm() {
   const mainForm = $$(mainFormId);
   webix.confirm("Clear the form?").then(() => {
@@ -181,8 +219,7 @@ webix.ready(function () {
             rows: [list, mainListLabel],
           },
           { view: "resizer" },
-          datatable,
-          form,
+          mainMultiview
         ],
       },
       {
