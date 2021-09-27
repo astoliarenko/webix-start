@@ -20,3 +20,7 @@ body {
 .rank .webix_cell {
     text-align: center;
 }
+.user-list-close {
+    float: right;
+    /* text-align: center; */
+}

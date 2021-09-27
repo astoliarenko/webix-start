@@ -55,13 +55,6 @@ const datatable = {
       css: "rank",
       template:
         "<span class ='webix_icon wxi-trash removeItemDatatable'></span>",
-      onClick: {
-        removeItemDatatable: function (e, id) {
-          this.removeItemDatatable(id);
-          console.log(this);
-          return false;
-        },
-      },
     },
   ],
   id: "main-datatable",
@@ -69,13 +62,26 @@ const datatable = {
   autoConfig: true,
   // autowidth: true,
   scrollX: false,
-  // onClick: {
-  //   removeItemDatatable: function(e, id) {
-  //     this.removeItemDatatable(id);
-  //     console.log(this);
-  //     return false;
-  //   }
-  // }
+  onClick: {
+    removeItemDatatable: function (e, id) {
+      this.remove(id);
+      //не факт что нужно возвращать фолз (нужно все же) и ивент e из параметров не используется!!
+      //The return false line blocks further processing of a click action
+      //(e.g. if selection is enabled, only clicks outside the active zone will select an item).
+      // console.log(this);
+      return false;
+    },
+  },
+  // !!!!!!!!!!!!!!!!!!!_______________!!!!!!!!!!!!
+  //onAfterLoad (это ивент) который нужно отловить и раскрыть список после его срабатывания
+  on: {
+    onAfterLoad: function () {
+      console.log("data was loaded");
+      //раскрыть список
+      $$("main-datatable").checkAll();
+      //не фурыкает
+    },
+  },
 };
 
 const mainFormId = "main-form";
@@ -169,14 +175,80 @@ const treeTable = {
     },
     { id: "price", header: "Price", width: 200 },
   ],
-  // select: true,
   url: "./data/products.js",
+  scrollX: false,
+  select: true,
+  //написано разрешить cell selections, а я разрешил список, мб не то что нужно
+};
+
+const userChart = {
+  view: "chart",
+  type: "bar",
+  value: "#age#",
+  // name: "age",
+  label: "#age#",
+  // xValue: "age",
+  barWidth: 35,
+  radius: 0,
+  gradient: "falling",
+  url: "./data/users.js",
+};
+
+const userView = {
+  id: "Users",
+  rows: [
+    //toolbar,
+    {
+      cols: [
+        {
+          view: "text",
+          // label: "Rating",
+          id: "inpFilter",
+          name: "name",
+          // invalidMessage: "Cannot be empty or 0",
+        },
+        {
+          view: "button",
+          value: "Sort asc",
+          css: "webix_primary",
+          // click: addItem,
+          width: 100,
+        },
+        {
+          view: "button",
+          value: "Sort desc",
+          css: "webix_primary",
+          // click: addItem,
+          width: 100,
+        },
+      ],
+    },
+    {
+      view: "list",
+      id: "Userslist",
+      autowidth: true,
+      template:
+        "#name# <span class='webix_icon wxi-close user-list-close'></span>",
+      select: true,
+      // on: {
+      //   onAfterSelect: (id) => {
+      //     $$(id).show();
+      //   },
+      // },
+      scrollX: false,
+      height: 200,
+      // css: "main-list-style",
+      url: "./data/users.js",
+    },
+    userChart,
+  ],
 };
 
 const mainMultiview = {
   cells: [
     { id: "Dashboard", cols: [datatable, form] },
-    { id: "Users" },
+    // { id: "Users" },
+    userView,
     treeTable,
     { id: "Admin" },
   ],
