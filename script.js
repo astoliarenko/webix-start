@@ -30,38 +30,39 @@ const list = {
   width: 250,
   // template: "#title#",
   select: true,
-  on:{
-    onAfterSelect: (id) => { 
+  on: {
+    onAfterSelect: (id) => {
       $$(id).show();
-    }
+    },
   },
   scroll: false,
   css: "main-list-style",
-  data: [ "Dashboard", "Users", "Products", "Admin" ]
+  data: ["Dashboard", "Users", "Products", "Admin"],
 };
 
 const datatable = {
   view: "datatable",
   columns: [
     //css in the first column is not working
-    {id: "rank", header: "Rank", css: "rank", width: 50},
-    {id: "title", header: "Title", fillspace: true},
-    {id: "year", header: "Year"},
-    {id: "rating", header: "Ratings"},
-    {id: "votes", header: "Votes"},
+    { id: "rank", header: "Rank", css: "rank", width: 50 },
+    { id: "title", header: "Title", fillspace: true },
+    { id: "year", header: "Year" },
+    { id: "rating", header: "Ratings" },
+    { id: "votes", header: "Votes" },
     {
       id: "delete",
       header: "",
       css: "rank",
-      template: "<span class ='webix_icon wxi-trash removeItemDatatable'></span>",
+      template:
+        "<span class ='webix_icon wxi-trash removeItemDatatable'></span>",
       onClick: {
-        removeItemDatatable: function(e, id) {
+        removeItemDatatable: function (e, id) {
           this.removeItemDatatable(id);
           console.log(this);
           return false;
-        }
-      }
-    }
+        },
+      },
+    },
   ],
   id: "main-datatable",
   url: "./data/data.js",
@@ -155,13 +156,30 @@ const form = {
   },
 };
 
-const mainMultiview  = {
+const treeTable = {
+  view: "treetable",
+  id: "Products",
+  columns: [
+    { id: "id", header: "", width: 50 },
+    {
+      id: "title",
+      header: "Title",
+      template: "{common.treetable()} #id#",
+      fillspace: true,
+    },
+    { id: "price", header: "Price", width: 200 },
+  ],
+  // select: true,
+  url: "./data/products.js",
+};
+
+const mainMultiview = {
   cells: [
-    {id: "Dashboard", cols: [datatable, form]},
-    {id: "Users"},
-    {id: "Products"},
-    {id: "Admin"}
-  ]
+    { id: "Dashboard", cols: [datatable, form] },
+    { id: "Users" },
+    treeTable,
+    { id: "Admin" },
+  ],
 };
 
 function clearForm() {
@@ -219,7 +237,7 @@ webix.ready(function () {
             rows: [list, mainListLabel],
           },
           { view: "resizer" },
-          mainMultiview
+          mainMultiview,
         ],
       },
       {
