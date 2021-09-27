@@ -43,12 +43,11 @@ const list = {
 const datatable = {
   view: "datatable",
   columns: [
-    //css in the first column is not working
-    { id: "rank", header: "Rank", css: "rank", width: 50 },
-    { id: "title", header: "Title", fillspace: true },
-    { id: "year", header: "Year" },
-    { id: "rating", header: "Ratings" },
-    { id: "votes", header: "Votes" },
+    { id: "rank", header: "", css: "rank", width: 50 },
+    { id: "title", header: ["Film title", {content:"textFilter"}], fillspace: true },
+    { id: "year", header: ["Released", {content:"textFilter"}] },
+    { id: "rating", header: ["Ratings", {content:"textFilter"}] },
+    { id: "votes", header: ["Votes", {content:"textFilter"}] },
     {
       id: "delete",
       header: "",
