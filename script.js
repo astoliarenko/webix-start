@@ -42,12 +42,24 @@ const list = {
 
 const datatable = {
   view: "datatable",
+  hover: "myHover",
   columns: [
-    { id: "rank", header: "", css: "rank", width: 50 },
-    { id: "title", header: ["Film title", {content:"textFilter"}], fillspace: true },
-    { id: "year", header: ["Released", {content:"textFilter"}] },
-    { id: "rating", header: ["Ratings", {content:"textFilter"}] },
-    { id: "votes", header: ["Votes", {content:"textFilter"}] },
+    { id: "rank", header: "", css: "rank head_row", width: 50 },
+    {
+      id: "title",
+      header: ["Film title", { content: "textFilter" }],
+      fillspace: true,
+      sort: "string",
+    },
+    { id: "year", header: ["Released", { content: "textFilter" }] },
+    { id: "rating", header: ["Ratings", { content: "textFilter" }] },
+    {
+      id: "votes",
+      header: ["Votes", { content: "textFilter" }],
+      template: (item) => {
+        return Math.round(parseInt(item.votes)).toString();
+      },
+    },
     {
       id: "delete",
       header: "",
@@ -64,23 +76,12 @@ const datatable = {
   onClick: {
     removeItemDatatable: function (e, id) {
       this.remove(id);
-      //не факт что нужно возвращать фолз (нужно все же) и ивент e из параметров не используется!!
       //The return false line blocks further processing of a click action
       //(e.g. if selection is enabled, only clicks outside the active zone will select an item).
-      // console.log(this);
       return false;
     },
   },
   // !!!!!!!!!!!!!!!!!!!_______________!!!!!!!!!!!!
-  //onAfterLoad (это ивент) который нужно отловить и раскрыть список после его срабатывания
-  on: {
-    onAfterLoad: function () {
-      console.log("data was loaded");
-      //раскрыть список
-      $$("main-datatable").checkAll();
-      //не фурыкает
-    },
-  },
 };
 
 const mainFormId = "main-form";
@@ -177,27 +178,73 @@ const treeTable = {
   url: "./data/products.js",
   scrollX: false,
   select: true,
-  //написано разрешить cell selections, а я разрешил список, мб не то что нужно
+  //написано разрешить cell selections, а я разрешил выбор listItem, мб не то что нужно
+  on: {
+    onAfterLoad: function () {
+      console.log("data was loaded");
+      $$("Products").openAll();
+    },
+  },
 };
 
 const userChart = {
   view: "chart",
   type: "bar",
   value: "#age#",
-  // name: "age",
-  label: "#age#",
-  // xValue: "age",
+  // label: "#age#",
   barWidth: 35,
   radius: 0,
   gradient: "falling",
   url: "./data/users.js",
+  xAxis: {
+    template: "#age#",
+    title: "age",
+  },
 };
+
+const userList = {
+  view: "list",
+  css: "user_list-style",
+  id: "Userslist",
+  autowidth: true,
+  template: "#name# <span class='webix_icon wxi-close user-list-close'></span>",
+  select: true,
+  scrollX: false,
+  maxHeight: 200,
+  // css: "main-list-style",
+  url: "./data/users.js",
+  onClick: {
+    "user-list-close": function (e, id) {
+      this.remove(id);
+      updateTopFiveListItems();
+      return false;
+    },
+  },
+  on: {
+    onAfterRender: updateTopFiveListItems
+  }
+};
+
+function updateTopFiveListItems() {
+  const list = $$("Userslist");
+  list.clearCss("user_list-head");
+  if (list.count() < 5) {
+    for (let i = 0; i < list.count(); i++) {
+      list.addCss(list.data.order[i], "user_list-head");
+    }
+  } else {
+    for (let i = 0; i < 5; i++) {
+      list.addCss(list.data.order[i], "user_list-head");
+    }
+  }
+}
 
 const userView = {
   id: "Users",
   rows: [
     //toolbar,
     {
+      padding: 5,
       cols: [
         {
           view: "text",
@@ -210,38 +257,30 @@ const userView = {
           view: "button",
           value: "Sort asc",
           css: "webix_primary",
-          // click: addItem,
+          click: sortAsc,
           width: 100,
         },
         {
           view: "button",
           value: "Sort desc",
           css: "webix_primary",
-          // click: addItem,
+          click: sortDesc,
           width: 100,
         },
       ],
     },
-    {
-      view: "list",
-      id: "Userslist",
-      autowidth: true,
-      template:
-        "#name# <span class='webix_icon wxi-close user-list-close'></span>",
-      select: true,
-      // on: {
-      //   onAfterSelect: (id) => {
-      //     $$(id).show();
-      //   },
-      // },
-      scrollX: false,
-      height: 200,
-      // css: "main-list-style",
-      url: "./data/users.js",
-    },
+    userList,
     userChart,
   ],
 };
+
+function sortAsc() {
+  $$("Userslist").sort("name", "asc");
+}
+
+function sortDesc() {
+  $$("Userslist").sort("name", "desc");
+}
 
 const mainMultiview = {
   cells: [
