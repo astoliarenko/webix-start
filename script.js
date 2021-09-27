@@ -211,7 +211,6 @@ const userList = {
   select: true,
   scrollX: false,
   maxHeight: 200,
-  // css: "main-list-style",
   url: "./data/users.js",
   onClick: {
     "user-list-close": function (e, id) {
@@ -242,16 +241,20 @@ function updateTopFiveListItems() {
 const userView = {
   id: "Users",
   rows: [
-    //toolbar,
     {
       padding: 5,
       cols: [
         {
           view: "text",
-          // label: "Rating",
           id: "inpFilter",
           name: "name",
-          // invalidMessage: "Cannot be empty or 0",
+          on: {
+            onChange: (value) => {
+              // $$("Userslist").data.filter((item) => item.name.toLowerCase().indexOf(value.toLowerCase(), 0) !== -1);
+              $$("Userslist").data.filter((item) => value === item.name.toLowerCase().substring(0, value.length));
+              updateTopFiveListItems();
+            },
+          }
         },
         {
           view: "button",
@@ -285,7 +288,6 @@ function sortDesc() {
 const mainMultiview = {
   cells: [
     { id: "Dashboard", cols: [datatable, form] },
-    // { id: "Users" },
     userView,
     treeTable,
     { id: "Admin" },
