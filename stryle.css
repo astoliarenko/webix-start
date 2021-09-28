@@ -1,8 +1,13 @@
+:root {
+    --color-list-menu: #eeefef;
+    --color-hover: #F4F5F9;
+    --color-datatable-header: #F4F5F9;
+}
 body {
     margin: 0;
 }
 .main-list-style {
-    background-color:#eeefef;
+    background-color: var(--color-list-menu);
 }
 .main-list-style .webix_list_item {
     border-bottom: 0;
@@ -12,8 +17,23 @@ body {
 }
 .main-list-label-style {
     text-align: center;
-    background-color:#eeefef;
+    background-color: var(--color-list-menu);
 }
 .main-list-label-style .webix_el_box {
     color: green;
+}
+.rank .webix_cell {
+    text-align: center;
+}
+.user-list-close {
+    float: right;
+}
+.head_row {
+    background-color: var(--color-datatable-header);
+}
+.myHover {
+    background-color: var(--color-hover);
+}
+.user_list-head {
+    background-color: var(--color-hover);
 }

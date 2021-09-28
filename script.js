@@ -1,3 +1,9 @@
+const mainFormId = "main-form";
+const userListId = "Userslist";
+const mainMultiviewProductsId = "Products";
+const menuListId = "main-list";
+const datatableId = "main-datatable";
+
 const label = {
   view: "label",
   id: "header-label",
@@ -26,29 +32,123 @@ const button = {
 
 const list = {
   view: "list",
-  id: "main-list",
+  id: menuListId,
   width: 250,
-  template: "#title#",
   select: true,
+  on: {
+    onAfterSelect: (id) => {
+      $$(id).show();
+    },
+    // onAfterLoad: () => {
+    //   $$(menuListId).select("Dashboard");
+    // }
+  },
   scroll: false,
   css: "main-list-style",
-  data: [
-    { id: 1, title: "Dashboard" },
-    { id: 2, title: "Users" },
-    { id: 3, title: "Products" },
-    { id: 4, title: "Locations" },
-  ],
+  data: ["Dashboard", "Users", mainMultiviewProductsId, "Admin"],
 };
 
 const datatable = {
   view: "datatable",
-  id: "main-datatable",
-  data: small_film_set,
-  autoConfig: true,
+  hover: "myHover",
+  id: datatableId,
+  url: "./data/data.js",
+  columns: [
+    { id: "rank", header: "", css: "rank head_row", width: 50 },
+    {
+      id: "title",
+      header: ["Film title", { content: "textFilter" }],
+      fillspace: true,
+      sort: "string",
+    },
+    { id: "year", header: ["Released", { content: "textFilter" }] },
+    { id: "rating", header: ["Ratings", { content: "textFilter" }] },
+    {
+      id: "votes",
+      header: ["Votes", { content: "textFilter" }],
+      template: (item) => {
+        return roundNumber(item.votes);
+      },
+    },
+    {
+      id: "delete",
+      header: "",
+      css: "rank",
+      template:
+        "<span class ='webix_icon wxi-trash removeItemDatatable'></span>",
+    },
+  ],
+  // autowidth: true,
   scrollX: false,
+  select: true,
+  onClick: {
+    removeItemDatatable: function (e, id) {
+      // console.log(this.getSelectedId(), "and id", id);
+      const mainForm = $$(mainFormId);
+      if (this.getSelectedId() && this.getSelectedId().row === id.row) {
+        mainForm.clear();
+        mainForm.clearValidation();
+      }
+      this.remove(id);
+      //The return false line blocks further processing of a click action
+      //(e.g. if selection is enabled, only clicks outside the active zone will select an item).
+      return false;
+    },
+  },
+  on: {
+    onAfterSelect: valuesToForm,
+  },
 };
 
-const mainFormId = "main-form";
+function roundNumber(num) {
+  return Math.round(parseInt(num)).toString();
+}
+
+function valuesToForm(id) {
+  const values = $$(datatableId).getItem(id);
+  values.votes = roundNumber(values.votes);
+  $$(mainFormId).setValues(values);
+}
+
+function clearForm() {
+  const mainForm = $$(mainFormId);
+  webix.confirm("Clear the form?").then(() => {
+    mainForm.clear();
+    $$(datatableId).unselectAll();
+    mainForm.clearValidation();
+  });
+}
+
+function saveItem() {
+  const mainForm = $$(mainFormId);
+  const mainDatatable = $$(datatableId);
+  const resultOfValidation = mainForm.validate();
+  const item_data = mainForm.getValues();
+  if (resultOfValidation && item_data.id === undefined) {
+    webix.message({ text: "film info was added to table", type: "success" });
+    mainDatatable.add(item_data);
+    mainForm.clear();
+  } else if (resultOfValidation && item_data.id) {
+    webix.message({ text: "film info was edited", type: "success" });
+    mainDatatable.updateItem(item_data.id, item_data);
+    mainForm.clear();
+  }
+}
+
+const btnSaveChanges = {
+  view: "button",
+  id: "btn-add-new-item",
+  value: "Save",
+  css: "webix_primary",
+  click: saveItem,
+};
+
+const btnClearForm = {
+  view: "button",
+  id: "btn-clear-form",
+  value: "Clear",
+  click: clearForm,
+};
 
 const form = {
   width: 300,
@@ -89,17 +189,9 @@ const form = {
         },
         {
           margin: 10,
-          cols: [
+          rows: [
             {
-              view: "button",
-              value: "Add new",
-              css: "webix_primary",
-              click: addItem,
-            },
-            {
-              view: "button",
-              value: "Clear",
-              click: clearForm,
+              cols: [btnSaveChanges, btnClearForm],
             },
           ],
         },
@@ -126,24 +218,133 @@ const form = {
   },
 };
 
-function clearForm() {
-  const mainForm = $$(mainFormId);
-  webix.confirm("Clear the form?").then(() => {
-    mainForm.clear();
-    mainForm.clearValidation();
-  });
-}
+const treeTable = {
+  view: "treetable",
+  id: mainMultiviewProductsId,
+  columns: [
+    { id: "id", header: "", width: 50 },
+    {
+      id: "title",
+      header: "Title",
+      template: "{common.treetable()} #id#",
+      fillspace: true,
+    },
+    { id: "price", header: "Price", width: 200 },
+  ],
+  url: "./data/products.js",
+  scrollX: false,
+  select: "cell",
+  //enable sell selection
+  on: {
+    onAfterLoad: function () {
+      //this = $$(mainMultiviewProductsId) in this case
+      this.openAll();
+    },
+  },
+};
 
-function addItem() {
-  const mainForm = $$(mainFormId);
-  let res = mainForm.validate();
-  if (res) {
-    let itemData = mainForm.getValues();
-    webix.message({ text: "film info was added to table", type: "success" });
-    $$("main-datatable").add(itemData);
-    mainForm.clear();
+const userChart = {
+  view: "chart",
+  type: "bar",
+  value: "#age#",
+  // label: "#age#",
+  barWidth: 35,
+  radius: 0,
+  gradient: "falling",
+  url: "./data/users.js",
+  xAxis: {
+    template: "#age#",
+    title: "age",
+  },
+};
+
+const userList = {
+  view: "list",
+  css: "user_list-style",
+  id: userListId,
+  autowidth: true,
+  template:
+    "#name# from #country#<span class='webix_icon wxi-close user-list-close'></span>",
+  select: true,
+  scrollX: false,
+  maxHeight: 200,
+  url: "./data/users.js",
+  onClick: {
+    "user-list-close": function (e, id) {
+      this.remove(id);
+      updateTopFiveListItems();
+      return false;
+    },
+  },
+  on: {
+    "data->onAfterFilter": updateTopFiveListItems,
+    "data->onAfterSort": updateTopFiveListItems,
+  },
+  ready: updateTopFiveListItems,
+};
+
+function updateTopFiveListItems() {
+  const list = $$(userListId);
+  const userListHeadStyle = "user_list-head";
+  const countOfListItems = list.count();
+  const countTopItems = countOfListItems > 5 ? 5 : countOfListItems;
+  list.clearCss(userListHeadStyle);
+  for (let i = 0; i < countTopItems; i++) {
+    list.addCss(list.data.order[i], userListHeadStyle);
   }
 }
+
+const userView = {
+  id: "Users",
+  rows: [
+    {
+      padding: 5,
+      cols: [
+        {
+          view: "text",
+          id: "inpFilter",
+          name: "name",
+          on: {
+            onChange: (value) => {
+              // $$("Userslist").data.filter((item) => item.name.toLowerCase().indexOf(value.toLowerCase(), 0) !== -1);
+              $$(userListId).data.filter(
+                (item) =>
+                  value === item.name.toLowerCase().substring(0, value.length)
+              );
+              updateTopFiveListItems();
+            },
+          },
+        },
+        {
+          view: "button",
+          value: "Sort asc",
+          css: "webix_primary",
+          click: () => $$(userListId).sort("name", "asc"),
+          width: 100,
+        },
+        {
+          view: "button",
+          value: "Sort desc",
+          css: "webix_primary",
+          click: () => $$(userListId).sort("name", "desc"),
+          width: 100,
+        },
+      ],
+    },
+    userList,
+    userChart,
+  ],
+};
+
+const mainMultiview = {
+  cells: [
+    { id: "Dashboard", cols: [datatable, form] },
+    userView,
+    treeTable,
+    { id: "Admin" },
+  ],
+};
+
 webix.ready(function () {
   webix.ui({
     view: "popup",
@@ -181,8 +382,7 @@ webix.ready(function () {
             rows: [list, mainListLabel],
           },
           { view: "resizer" },
-          datatable,
-          form,
+          mainMultiview,
         ],
       },
       {
@@ -196,4 +396,5 @@ webix.ready(function () {
       },
     ],
   });
+  $$(menuListId).select("Dashboard");
 });
