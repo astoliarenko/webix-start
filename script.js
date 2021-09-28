@@ -1,3 +1,7 @@
+const mainFormId = "main-form";
+const userListId = "Userslist";
+const mainMultiviewProductsId = "Products";
+
 const label = {
   view: "label",
   id: "header-label",
@@ -37,7 +41,7 @@ const list = {
   },
   scroll: false,
   css: "main-list-style",
-  data: ["Dashboard", "Users", "Products", "Admin"],
+  data: ["Dashboard", "Users", mainMultiviewProductsId, "Admin"],
 };
 
 const datatable = {
@@ -83,8 +87,6 @@ const datatable = {
   },
   // !!!!!!!!!!!!!!!!!!!_______________!!!!!!!!!!!!
 };
-
-const mainFormId = "main-form";
 
 const form = {
   width: 300,
@@ -164,7 +166,7 @@ const form = {
 
 const treeTable = {
   view: "treetable",
-  id: "Products",
+  id: mainMultiviewProductsId,
   columns: [
     { id: "id", header: "", width: 50 },
     {
@@ -182,7 +184,7 @@ const treeTable = {
   on: {
     onAfterLoad: function () {
       console.log("data was loaded");
-      $$("Products").openAll();
+      $$(mainMultiviewProductsId).openAll();
     },
   },
 };
@@ -205,7 +207,7 @@ const userChart = {
 const userList = {
   view: "list",
   css: "user_list-style",
-  id: "Userslist",
+  id: userListId,
   autowidth: true,
   template: "#name# <span class='webix_icon wxi-close user-list-close'></span>",
   select: true,
@@ -220,21 +222,17 @@ const userList = {
     },
   },
   on: {
-    onAfterRender: updateTopFiveListItems
-  }
+    onAfterRender: updateTopFiveListItems,
+  },
 };
 
 function updateTopFiveListItems() {
-  const list = $$("Userslist");
-  list.clearCss("user_list-head");
-  if (list.count() < 5) {
-    for (let i = 0; i < list.count(); i++) {
-      list.addCss(list.data.order[i], "user_list-head");
-    }
-  } else {
-    for (let i = 0; i < 5; i++) {
-      list.addCss(list.data.order[i], "user_list-head");
-    }
+  const list = $$(userListId);
+  const userListHeadStyle = "user_list-head";
+  const countOfListItems = list.count();
+  list.clearCss(userListHeadStyle);
+  for (let i = 0; i < (countOfListItems > 5 ? 5 : countOfListItems); i++) {
+    list.addCss(list.data.order[i], userListHeadStyle);
   }
 }
 
@@ -251,23 +249,26 @@ const userView = {
           on: {
             onChange: (value) => {
               // $$("Userslist").data.filter((item) => item.name.toLowerCase().indexOf(value.toLowerCase(), 0) !== -1);
-              $$("Userslist").data.filter((item) => value === item.name.toLowerCase().substring(0, value.length));
+              $$(userListId).data.filter(
+                (item) =>
+                  value === item.name.toLowerCase().substring(0, value.length)
+              );
               updateTopFiveListItems();
             },
-          }
+          },
         },
         {
           view: "button",
           value: "Sort asc",
           css: "webix_primary",
-          click: sortAsc,
+          click: () => $$(userListId).sort("name", "asc"),
           width: 100,
         },
         {
           view: "button",
           value: "Sort desc",
           css: "webix_primary",
-          click: sortDesc,
+          click: () => $$(userListId).sort("name", "desc"),
           width: 100,
         },
       ],
@@ -276,14 +277,6 @@ const userView = {
     userChart,
   ],
 };
-
-function sortAsc() {
-  $$("Userslist").sort("name", "asc");
-}
-
-function sortDesc() {
-  $$("Userslist").sort("name", "desc");
-}
 
 const mainMultiview = {
   cells: [
