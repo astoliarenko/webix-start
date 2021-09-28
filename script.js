@@ -2,6 +2,7 @@ const mainFormId = "main-form";
 const userListId = "Userslist";
 const mainMultiviewProductsId = "Products";
 const menuListId = "main-list";
+const datatableId = "main-datatable";
 
 const label = {
   view: "label",
@@ -50,6 +51,8 @@ const list = {
 const datatable = {
   view: "datatable",
   hover: "myHover",
+  id: datatableId,
+  url: "./data/data.js",
   columns: [
     { id: "rank", header: "", css: "rank head_row", width: 50 },
     {
@@ -64,7 +67,7 @@ const datatable = {
       id: "votes",
       header: ["Votes", { content: "textFilter" }],
       template: (item) => {
-        return Math.round(parseInt(item.votes)).toString();
+        return roundNumber(item.votes);
       },
     },
     {
@@ -75,19 +78,76 @@ const datatable = {
         "<span class ='webix_icon wxi-trash removeItemDatatable'></span>",
     },
   ],
-  id: "main-datatable",
-  url: "./data/data.js",
   // autowidth: true,
   scrollX: false,
+  select: true,
   onClick: {
     removeItemDatatable: function (e, id) {
+      // console.log(this.getSelectedId(), "and id", id);
+      const mainForm = $$(mainFormId);
+      if (this.getSelectedId() && this.getSelectedId().row === id.row) {
+        mainForm.clear();
+        mainForm.clearValidation();
+      }
       this.remove(id);
       //The return false line blocks further processing of a click action
       //(e.g. if selection is enabled, only clicks outside the active zone will select an item).
       return false;
     },
   },
-  // !!!!!!!!!!!!!!!!!!!_______________!!!!!!!!!!!!
+  on: {
+    onAfterSelect: valuesToForm,
+  },
+};
+
+function roundNumber(num) {
+  return Math.round(parseInt(num)).toString();
+}
+
+function valuesToForm(id) {
+  const values = $$(datatableId).getItem(id);
+  values.votes = roundNumber(values.votes);
+  $$(mainFormId).setValues(values);
+}
+
+function clearForm() {
+  const mainForm = $$(mainFormId);
+  webix.confirm("Clear the form?").then(() => {
+    mainForm.clear();
+    $$(datatableId).unselectAll();
+    mainForm.clearValidation();
+  });
+}
+
+function saveItem() {
+  const mainForm = $$(mainFormId);
+  const mainDatatable = $$(datatableId);
+  const resultOfValidation = mainForm.validate();
+  const item_data = mainForm.getValues();
+  if (resultOfValidation && item_data.id === undefined) {
+    webix.message({ text: "film info was added to table", type: "success" });
+    mainDatatable.add(item_data);
+    mainForm.clear();
+  } else if (resultOfValidation && item_data.id) {
+    webix.message({ text: "film info was edited", type: "success" });
+    mainDatatable.updateItem(item_data.id, item_data);
+    mainForm.clear();
+  }
+}
+
+const btnSaveChanges = {
+  view: "button",
+  id: "btn-add-new-item",
+  value: "Save",
+  css: "webix_primary",
+  click: saveItem,
+};
+
+const btnClearForm = {
+  view: "button",
+  id: "btn-clear-form",
+  value: "Clear",
+  click: clearForm,
 };
 
 const form = {
@@ -129,17 +189,9 @@ const form = {
         },
         {
           margin: 10,
-          cols: [
+          rows: [
             {
-              view: "button",
-              value: "Add new",
-              css: "webix_primary",
-              click: addItem,
-            },
-            {
-              view: "button",
-              value: "Clear",
-              click: clearForm,
+              cols: [btnSaveChanges, btnClearForm],
             },
           ],
         },
@@ -211,7 +263,8 @@ const userList = {
   css: "user_list-style",
   id: userListId,
   autowidth: true,
-  template: "#name# from #country#<span class='webix_icon wxi-close user-list-close'></span>",
+  template:
+    "#name# from #country#<span class='webix_icon wxi-close user-list-close'></span>",
   select: true,
   scrollX: false,
   maxHeight: 200,
@@ -224,8 +277,10 @@ const userList = {
     },
   },
   on: {
-    onAfterRender: updateTopFiveListItems,
+    "data->onAfterFilter": updateTopFiveListItems,
+    "data->onAfterSort": updateTopFiveListItems,
   },
+  ready: updateTopFiveListItems,
 };
 
 function updateTopFiveListItems() {
@@ -290,24 +345,6 @@ const mainMultiview = {
   ],
 };
 
-function clearForm() {
-  const mainForm = $$(mainFormId);
-  webix.confirm("Clear the form?").then(() => {
-    mainForm.clear();
-    mainForm.clearValidation();
-  });
-}
-
-function addItem() {
-  const mainForm = $$(mainFormId);
-  let res = mainForm.validate();
-  if (res) {
-    let itemData = mainForm.getValues();
-    webix.message({ text: "film info was added to table", type: "success" });
-    $$("main-datatable").add(itemData);
-    mainForm.clear();
-  }
-}
 webix.ready(function () {
   webix.ui({
     view: "popup",
