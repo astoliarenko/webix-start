@@ -1,6 +1,7 @@
 const mainFormId = "main-form";
 const userListId = "Userslist";
 const mainMultiviewProductsId = "Products";
+const menuListId = "main-list";
 
 const label = {
   view: "label",
@@ -30,14 +31,16 @@ const button = {
 
 const list = {
   view: "list",
-  id: "main-list",
+  id: menuListId,
   width: 250,
-  // template: "#title#",
   select: true,
   on: {
     onAfterSelect: (id) => {
       $$(id).show();
     },
+    // onAfterLoad: () => {
+    //   $$(menuListId).select("Dashboard");
+    // }
   },
   scroll: false,
   css: "main-list-style",
@@ -74,7 +77,6 @@ const datatable = {
   ],
   id: "main-datatable",
   url: "./data/data.js",
-  autoConfig: true,
   // autowidth: true,
   scrollX: false,
   onClick: {
@@ -179,12 +181,12 @@ const treeTable = {
   ],
   url: "./data/products.js",
   scrollX: false,
-  select: true,
-  //написано разрешить cell selections, а я разрешил выбор listItem, мб не то что нужно
+  select: "cell",
+  //enable sell selection
   on: {
     onAfterLoad: function () {
-      console.log("data was loaded");
-      $$(mainMultiviewProductsId).openAll();
+      //this = $$(mainMultiviewProductsId) in this case
+      this.openAll();
     },
   },
 };
@@ -209,7 +211,7 @@ const userList = {
   css: "user_list-style",
   id: userListId,
   autowidth: true,
-  template: "#name# <span class='webix_icon wxi-close user-list-close'></span>",
+  template: "#name# from #country#<span class='webix_icon wxi-close user-list-close'></span>",
   select: true,
   scrollX: false,
   maxHeight: 200,
@@ -230,8 +232,9 @@ function updateTopFiveListItems() {
   const list = $$(userListId);
   const userListHeadStyle = "user_list-head";
   const countOfListItems = list.count();
+  const countTopItems = countOfListItems > 5 ? 5 : countOfListItems;
   list.clearCss(userListHeadStyle);
-  for (let i = 0; i < (countOfListItems > 5 ? 5 : countOfListItems); i++) {
+  for (let i = 0; i < countTopItems; i++) {
     list.addCss(list.data.order[i], userListHeadStyle);
   }
 }
@@ -356,4 +359,5 @@ webix.ready(function () {
       },
     ],
   });
+  $$(menuListId).select("Dashboard");
 });
