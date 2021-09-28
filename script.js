@@ -397,4 +397,5 @@ webix.ready(function () {
     ],
   });
   $$(menuListId).select("Dashboard");
+  $$(mainFormId).bind($$(datatableId));
 });
