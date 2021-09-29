@@ -4,11 +4,23 @@ const mainMultiviewProductsId = "Products";
 const menuListId = "main-list";
 const datatableId = "main-datatable";
 const dashboardTabbar = "tabbar";
+const userListHeadStyle = "user_list-head";
+const userChartId = "user-chart";
 const categories = [
   { id: 1, value: "Drama" },
   { id: 2, value: "Fiction" },
   { id: 3, value: "Comedy" },
   { id: 4, value: "Horror" },
+];
+const countryList = [
+  { id: 1, value: "Germany" },
+  { id: 2, value: "USA" },
+  { id: 3, value: "Canada" },
+  { id: 4, value: "France" },
+  { id: 5, value: "China" },
+  { id: 6, value: "Russia" },
+  { id: 7, value: "Italy" },
+  { id: 8, value: "Spain" },
 ];
 
 const label = {
@@ -64,13 +76,13 @@ const tabbar = {
     { id: "all", value: "All" },
     { id: "old", value: "Old" },
     { id: "modern", value: "Modern" },
-    { id: "new", value: "New" }
+    { id: "new", value: "New" },
   ],
   on: {
     onAfterTabClick: () => {
-      $$(datatableId).filterByAll()
-    }
-  }
+      $$(datatableId).filterByAll();
+    },
+  },
 };
 
 const datatable = {
@@ -78,9 +90,13 @@ const datatable = {
   hover: "myHover",
   id: datatableId,
   url: "./data/data.js",
-  // editable: true,
   columns: [
-    { id: "rank", header: "#", css: "rank head_row cell-border-right", width: 50 },
+    {
+      id: "rank",
+      header: "#",
+      css: "rank head_row cell-border-right",
+      width: 50,
+    },
     {
       id: "title",
       header: ["Film title", { content: "textFilter" }],
@@ -100,7 +116,7 @@ const datatable = {
         return roundNumber(item.votes);
       },
     },
-    { id: "year", header: "Year"},
+    { id: "year", header: "Year" },
     {
       id: "delete",
       header: "",
@@ -109,7 +125,6 @@ const datatable = {
         "<span class ='webix_icon wxi-trash removeItemDatatable'></span>",
     },
   ],
-  // autowidth: true,
   scrollX: false,
   select: true,
   onClick: {
@@ -152,22 +167,6 @@ function clearForm() {
     mainForm.clearValidation();
   });
 }
-
-// function saveItem() {
-//   const mainForm = $$(mainFormId);
-//   const mainDatatable = $$(datatableId);
-//   const resultOfValidation = mainForm.validate();
-//   const item_data = mainForm.getValues();
-//   if (resultOfValidation && item_data.id === undefined) {
-//     webix.message({ text: "film info was added to table", type: "success" });
-//     mainDatatable.add(item_data);
-//     mainForm.clear();
-//   } else if (resultOfValidation && item_data.id) {
-//     webix.message({ text: "film info was edited", type: "success" });
-//     mainDatatable.updateItem(item_data.id, item_data);
-//     mainForm.clear();
-//   }
-// }
 
 const btnSaveChanges = {
   view: "button",
@@ -240,6 +239,8 @@ const form = {
       return value > 1970 && value <= new Date().getFullYear();
     },
     votes: (value) => {
+      //здесь мб нужно что-то другое, что будет меньше ресурсов брать чем округление
+      // (мб отбрасывание части строки вместе с запятой)
       return roundNumber(value) < 100000;
     },
     rating: (value) => {
@@ -247,9 +248,10 @@ const form = {
     },
   },
   on: {
-    //при событии onChange данные из таблицы переместятся в форму
     onChange: function () {
       this.save();
+      //the method appears only when Form is bound
+      //в нашем случае мы уже забайндили на мастера
     },
     onValidationError: function (key) {
       webix.message({ text: `${key} field is incorrect`, type: "error" });
@@ -270,15 +272,18 @@ function saveForm() {
 const treeTable = {
   view: "treetable",
   id: mainMultiviewProductsId,
+  editable: true,
   columns: [
     { id: "id", header: "", width: 50 },
     {
       id: "title",
       header: "Title",
-      template: "{common.treetable()} #id#",
+      template: "{common.treetable()} #title#",
+      //было id в template вместо title, невнимателен
       fillspace: true,
+      editor: "text",
     },
-    { id: "price", header: "Price", width: 200 },
+    { id: "price", header: "Price", width: 200, editor: "text" },
   ],
   url: "./data/products.js",
   scrollX: false,
@@ -290,27 +295,41 @@ const treeTable = {
       this.openAll();
     },
   },
+  rules: {
+    title: webix.rules.isNotEmpty,
+    price: (price) => !isNaN(price),
+  },
 };
 
 const userChart = {
   view: "chart",
+  id: userChartId,
   type: "bar",
-  value: "#age#",
+  value: "#countCountry#",
   // label: "#age#",
   barWidth: 35,
   radius: 0,
   gradient: "falling",
   url: "./data/users.js",
   xAxis: {
-    template: "#age#",
-    title: "age",
+    template: "#country#",
+    title: "Country",
+  },
+  yAxis: {
+    start: 0,
+    end: 10,
+    step: 2,
+    //!!если будет больше 10 то не покажет, пофиксить потом нужно
   },
 };
 
 const userList = {
-  view: "list",
+  view: "editlist",
   css: "user_list-style",
   id: userListId,
+  editable: true,
+  editor: "text",
+  editValue: "name",
   autowidth: true,
   template:
     "#name# from #country#<span class='webix_icon wxi-close user-list-close'></span>",
@@ -330,11 +349,22 @@ const userList = {
     "data->onAfterSort": updateTopFiveListItems,
   },
   ready: updateTopFiveListItems,
+  scheme: {
+    // to process items when the data changes (includes initial loading as well).
+    $change: (obj) => {
+      if (obj.age > 26) {
+        obj.$css = "young-users__highlight";
+        // $$(userListId).clearCss(userListHeadStyle);
+      }
+    },
+  },
+  rules: {
+    name: webix.rules.isNotEmpty,
+  },
 };
 
 function updateTopFiveListItems() {
   const list = $$(userListId);
-  const userListHeadStyle = "user_list-head";
   const countOfListItems = list.count();
   const countTopItems = countOfListItems > 5 ? 5 : countOfListItems;
   list.clearCss(userListHeadStyle);
@@ -378,6 +408,26 @@ const userView = {
           click: () => $$(userListId).sort("name", "desc"),
           width: 100,
         },
+        {
+          view: "button",
+          value: "Add user",
+          css: "webix_primary",
+          id: "add_actor",
+          width: 100,
+          click: () => {
+            const newUserName = "Lionel Messi";
+            const idRandomCountry = getRandomIntInclusive(1, 8);
+            const userAge = getRandomIntInclusive(1, 100);
+            const userCountry = countryList[idRandomCountry - 1].value;
+            //но может правильнее по id искать, если да, то юзанул бы find()
+
+            $$(userListId).add({
+              name: newUserName,
+              age: userAge,
+              country: userCountry,
+            });
+          },
+        },
       ],
     },
     userList,
@@ -405,6 +455,7 @@ const mainMultiview = {
 };
 
 webix.ready(function () {
+  webix.protoUI({ name: "editlist" }, webix.EditAbility, webix.ui.list);
   webix.ui({
     view: "popup",
     id: "myPopup",
@@ -457,23 +508,35 @@ webix.ready(function () {
   });
   $$(menuListId).select("Dashboard");
   $$(mainFormId).bind($$(datatableId));
-  $$(datatableId).registerFilter($$(dashboardTabbar), {
-    columnId: "year",
-    compare: (value, filter, item) => {
-      switch(filter) {
-        case "all":
-          return value;
-        case "old":
-          return value <= 1980;
-        case "modern":
-          return value > 1990;
-        case "new":
-          return value > 2010;
-      }
+  $$(datatableId).registerFilter(
+    $$(dashboardTabbar),
+    {
+      columnId: "year",
+      compare: (value, filter) => {
+        switch (filter) {
+          case "all":
+            return value;
+          case "old":
+            return value <= 1980;
+          case "modern":
+            return value > 1990;
+          case "new":
+            return value > 2010;
+        }
+      },
+    },
+    {
+      getValue: (node) => node.getValue(),
+      setValue: (node, value) => node.setValue(value),
     }
-  },
-  {
-    getValue: node => node.getValue(),
-    setValue: (node, value) => node.setValue(value)
+  );
+  // const userChartView = $$(userChartId);
+  $$(userChartId).sync($$(userListId), () => {
+    $$(userChartId).group({
+      by: "country",
+      map: {
+        countCountry: ["country", "count"],
+      },
+    });
   });
 });
