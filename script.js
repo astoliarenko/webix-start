@@ -240,11 +240,6 @@ const form = {
     rating: (value) => webix.rules.isNotEmpty(value) && value !== "0",
   },
   on: {
-    onChange: function () {
-      this.save();
-      //the method appears only when Form is bound
-      //в нашем случае мы уже забайндили на мастера
-    },
     onValidationError: function (key) {
       webix.message({ text: `${key} field is incorrect`, type: "error" });
     },
@@ -253,12 +248,11 @@ const form = {
 
 function saveForm() {
   const form = $$(mainFormId);
-  if (form.isDirty()) {
-    if (!form.validate()) return false;
+  if (form.isDirty() && form.validate()) {
     form.save();
     webix.message({ text: "film info was saved", type: "success" });
     console.log("save");
-  }
+  } else return false;
 }
 
 const treeTable = {
