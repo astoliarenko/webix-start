@@ -3,6 +3,13 @@ const userListId = "Userslist";
 const mainMultiviewProductsId = "Products";
 const menuListId = "main-list";
 const datatableId = "main-datatable";
+const dashboardTabbar = "tabbar";
+const categories = [
+  { id: 1, value: "Drama" },
+  { id: 2, value: "Fiction" },
+  { id: 3, value: "Comedy" },
+  { id: 4, value: "Horror" },
+];
 
 const label = {
   view: "label",
@@ -48,20 +55,43 @@ const list = {
   data: ["Dashboard", "Users", mainMultiviewProductsId, "Admin"],
 };
 
+const tabbar = {
+  view: "tabbar",
+  id: dashboardTabbar,
+  value: "all",
+  //value sets the ID of the necessary option from the options collection
+  options: [
+    { id: "all", value: "All" },
+    { id: "old", value: "Old" },
+    { id: "modern", value: "Modern" },
+    { id: "new", value: "New" }
+  ],
+  on: {
+    onAfterTabClick: () => {
+      $$(datatableId).filterByAll()
+    }
+  }
+};
+
 const datatable = {
   view: "datatable",
   hover: "myHover",
   id: datatableId,
   url: "./data/data.js",
+  // editable: true,
   columns: [
-    { id: "rank", header: "", css: "rank head_row", width: 50 },
+    { id: "rank", header: "#", css: "rank head_row cell-border-right", width: 50 },
     {
       id: "title",
       header: ["Film title", { content: "textFilter" }],
       fillspace: true,
       sort: "string",
     },
-    { id: "year", header: ["Released", { content: "textFilter" }] },
+    {
+      id: "categoryId",
+      header: ["Category", { content: "selectFilter" }],
+      collection: categories,
+    },
     { id: "rating", header: ["Ratings", { content: "textFilter" }] },
     {
       id: "votes",
@@ -70,6 +100,7 @@ const datatable = {
         return roundNumber(item.votes);
       },
     },
+    { id: "year", header: "Year"},
     {
       id: "delete",
       header: "",
@@ -95,19 +126,22 @@ const datatable = {
       return false;
     },
   },
-  on: {
-    onAfterSelect: valuesToForm,
+  scheme: {
+    $init: (obj) => {
+      // console.log(obj);
+      obj.categoryId = getRandomIntInclusive(1, 4);
+    },
   },
 };
 
-function roundNumber(num) {
-  return Math.round(parseInt(num)).toString();
+function getRandomIntInclusive(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min; //Максимум и минимум включаются
 }
 
-function valuesToForm(id) {
-  const values = $$(datatableId).getItem(id);
-  values.votes = roundNumber(values.votes);
-  $$(mainFormId).setValues(values);
+function roundNumber(num) {
+  return Math.round(parseInt(num)).toString();
 }
 
 function clearForm() {
@@ -119,34 +153,35 @@ function clearForm() {
   });
 }
 
-function saveItem() {
-  const mainForm = $$(mainFormId);
-  const mainDatatable = $$(datatableId);
-  const resultOfValidation = mainForm.validate();
-  const item_data = mainForm.getValues();
-  if (resultOfValidation && item_data.id === undefined) {
-    webix.message({ text: "film info was added to table", type: "success" });
-    mainDatatable.add(item_data);
-    mainForm.clear();
-  } else if (resultOfValidation && item_data.id) {
-    webix.message({ text: "film info was edited", type: "success" });
-    mainDatatable.updateItem(item_data.id, item_data);
-    mainForm.clear();
-  }
-}
+// function saveItem() {
+//   const mainForm = $$(mainFormId);
+//   const mainDatatable = $$(datatableId);
+//   const resultOfValidation = mainForm.validate();
+//   const item_data = mainForm.getValues();
+//   if (resultOfValidation && item_data.id === undefined) {
+//     webix.message({ text: "film info was added to table", type: "success" });
+//     mainDatatable.add(item_data);
+//     mainForm.clear();
+//   } else if (resultOfValidation && item_data.id) {
+//     webix.message({ text: "film info was edited", type: "success" });
+//     mainDatatable.updateItem(item_data.id, item_data);
+//     mainForm.clear();
+//   }
+// }
 
 const btnSaveChanges = {
   view: "button",
   id: "btn-add-new-item",
-  value: "Save",
+  type: "form",
+  label: "Save",
   css: "webix_primary",
-  click: saveItem,
+  click: saveForm,
 };
 
 const btnClearForm = {
   view: "button",
   id: "btn-clear-form",
-  value: "Clear",
+  label: "Clear",
   click: clearForm,
 };
 
@@ -205,18 +240,32 @@ const form = {
       return value > 1970 && value <= new Date().getFullYear();
     },
     votes: (value) => {
-      return value < 100000;
+      return roundNumber(value) < 100000;
     },
     rating: (value) => {
-      return value !== "" && value !== 0;
+      return webix.rules.isNotEmpty(value) && value != 0;
     },
   },
   on: {
+    //при событии onChange данные из таблицы переместятся в форму
+    onChange: function () {
+      this.save();
+    },
     onValidationError: function (key) {
       webix.message({ text: `${key} field is incorrect`, type: "error" });
     },
   },
 };
+
+function saveForm() {
+  const form = $$(mainFormId);
+  if (form.isDirty()) {
+    if (!form.validate()) return false;
+    form.save();
+    webix.message({ text: "film info was saved", type: "success" });
+    console.log("save");
+  }
+}
 
 const treeTable = {
   view: "treetable",
@@ -338,7 +387,17 @@ const userView = {
 
 const mainMultiview = {
   cells: [
-    { id: "Dashboard", cols: [datatable, form] },
+    {
+      id: "Dashboard",
+      rows: [
+        {
+          cols: [tabbar, {}],
+        },
+        {
+          cols: [datatable, form],
+        },
+      ],
+    },
     userView,
     treeTable,
     { id: "Admin" },
@@ -398,4 +457,23 @@ webix.ready(function () {
   });
   $$(menuListId).select("Dashboard");
   $$(mainFormId).bind($$(datatableId));
+  $$(datatableId).registerFilter($$(dashboardTabbar), {
+    columnId: "year",
+    compare: (value, filter, item) => {
+      switch(filter) {
+        case "all":
+          return value;
+        case "old":
+          return value <= 1980;
+        case "modern":
+          return value > 1990;
+        case "new":
+          return value > 2010;
+      }
+    }
+  },
+  {
+    getValue: node => node.getValue(),
+    setValue: (node, value) => node.setValue(value)
+  });
 });

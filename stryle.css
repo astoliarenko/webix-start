@@ -37,3 +37,6 @@ body {
 .user_list-head {
     background-color: var(--color-hover);
 }
+.cell-border-right {
+    border-right: 1px solid #DADEE0;
+}
