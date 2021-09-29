@@ -2,6 +2,7 @@
     --color-list-menu: #eeefef;
     --color-hover: #F4F5F9;
     --color-datatable-header: #F4F5F9;
+    --color-highlight: #FCF0C9;
 }
 body {
     margin: 0;
@@ -36,4 +37,10 @@ body {
 }
 .user_list-head {
     background-color: var(--color-hover);
+}
+.cell-border-right {
+    border-right: 1px solid #DADEE0;
+}
+.young-users__highlight {
+    background-color: var(--color-highlight);
 }
