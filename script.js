@@ -252,7 +252,7 @@ function saveForm() {
     form.save();
     webix.message({ text: "film info was saved", type: "success" });
     console.log("save");
-  } else return false;
+  }
 }
 
 const treeTable = {
