@@ -150,8 +150,6 @@ const datatable = {
 };
 
 function getRandomIntInclusive(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min; //Максимум и минимум включаются
 }
 
@@ -238,14 +236,8 @@ const form = {
     year: (value) => {
       return value > 1970 && value <= new Date().getFullYear();
     },
-    votes: (value) => {
-      //здесь мб нужно что-то другое, что будет меньше ресурсов брать чем округление
-      // (мб отбрасывание части строки вместе с запятой)
-      return roundNumber(value) < 100000;
-    },
-    rating: (value) => {
-      return webix.rules.isNotEmpty(value) && value != 0;
-    },
+    votes: (value) => +roundNumber(value) < 100000,
+    rating: (value) => webix.rules.isNotEmpty(value) && value !== "0",
   },
   on: {
     onChange: function () {
@@ -416,10 +408,9 @@ const userView = {
           width: 100,
           click: () => {
             const newUserName = "Lionel Messi";
-            const idRandomCountry = getRandomIntInclusive(1, 8);
+            const idRandomCountry = getRandomIntInclusive(1, countryList.length);
             const userAge = getRandomIntInclusive(1, 100);
             const userCountry = countryList[idRandomCountry - 1].value;
-            //но может правильнее по id искать, если да, то юзанул бы find()
 
             $$(userListId).add({
               name: newUserName,
