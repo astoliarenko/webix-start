@@ -10,7 +10,6 @@ const treeTable = {
         id: "title",
         header: "Title",
         template: "{common.treetable()} #title#",
-        //было id в template вместо title, невнимателен
         fillspace: true,
         editor: "text",
       },
@@ -19,7 +18,6 @@ const treeTable = {
     url: "./data/products.js",
     scrollX: false,
     select: "cell",
-    //enable sell selection
     on: {
       onAfterLoad: function () {
         //this = $$(mainMultiviewProductsId) in this case
@@ -29,7 +27,7 @@ const treeTable = {
     rules: {
       title: webix.rules.isNotEmpty,
       price: (price) => !isNaN(price),
-      //прайс должен быть только у нижнего файла, потом пофиксить
+      //прайс должен быть только у нижнего файла (те у группы нет прайса), потом пофиксить
     },
   };
 

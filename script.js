@@ -1,8 +1,11 @@
 import multiview from "./components/multiview/index.js";
 import { mainFormId } from "./components/multiview/form.js";
-import { userListId,userChartId } from "./components/multiview/users.js";
+import { userListId, userChartId } from "./components/multiview/users.js";
 import { mainMultiviewProductsId } from "./components/multiview/products.js";
-import { filmCategoryCollection, usersCollection } from "./collections/collections.js";
+import {
+  filmCategoryCollection,
+  usersCollection,
+} from "./collections/collections.js";
 import { adminDatatableId, adminFormId } from "./components/multiview/admin.js";
 import { datatableId, tabbarId } from "./components/multiview/dashboard.js";
 
@@ -42,7 +45,7 @@ const list = {
   on: {
     onAfterSelect: (id) => {
       $$(id).show();
-    }
+    },
   },
   scroll: false,
   css: "main-list-style",
@@ -126,10 +129,15 @@ webix.ready(function () {
       setValue: (node, value) => node.setValue(value),
     }
   );
-  // const userChartView = $$(userChartId);
-  $$(userListId).sync(usersCollection);
+  $$(userListId).sync(usersCollection, () => {
+    const userList = $$(userListId);
+    userList.data.each((item) => {
+      if (item.age < 26) {
+        userList.addCss(item.id, "young-users__highlight");
+      }
+    });
+  });
   $$(userChartId).sync(usersCollection, () => {
-  // $$(userChartId).sync($$(userListId), () => {
     $$(userChartId).group({
       by: "country",
       map: {
@@ -140,5 +148,4 @@ webix.ready(function () {
   // webix.debug({ events:true });
   $$(adminFormId).bind($$(adminDatatableId));
   $$(adminDatatableId).sync(filmCategoryCollection);
-  // console.log(filmCategoryCollection);
 });

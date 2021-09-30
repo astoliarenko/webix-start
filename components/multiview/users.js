@@ -1,4 +1,4 @@
-import { getRandomIntInclusive} from "../../reusableFunc/reusableFunc.js";
+import { getRandomIntInclusive } from "../../reusableFunc/reusableFunc.js";
 import { usersCollection } from "../../collections/collections.js";
 
 const userListHeadStyle = "user_list-head";
@@ -54,6 +54,8 @@ const userList = {
   onClick: {
     "user-list-close": function (e, id) {
       usersCollection.remove(id);
+      //this.remove(id);
+      // в условии написано опасаться напрямую изменять коллекцию, а я это и делаю)
       updateTopFiveListItems();
       return false;
     },
@@ -61,17 +63,14 @@ const userList = {
   on: {
     "data->onAfterFilter": updateTopFiveListItems,
     "data->onAfterSort": updateTopFiveListItems,
+    // "data->onAfterLoad": updateTopFiveListItems,
   },
-  ready: updateTopFiveListItems,
+  // ready: updateTopFiveListItems,
+  ready: () => console.log("ready"),
   //redy уже не срабатывает
   scheme: {
     // to process items when the data changes (includes initial loading as well).
-    $change: (obj) => {
-      if (obj.age > 26) {
-        obj.$css = "young-users__highlight";
-        // $$(userListId).clearCss(userListHeadStyle);
-      }
-    },
+    $init: updateTopFiveListItems
   },
   rules: {
     name: webix.rules.isNotEmpty,
@@ -100,7 +99,6 @@ const users = {
           name: "name",
           on: {
             onChange: (value) => {
-              // $$("Userslist").data.filter((item) => item.name.toLowerCase().indexOf(value.toLowerCase(), 0) !== -1);
               $$(userListId).data.filter(
                 (item) =>
                   value === item.name.toLowerCase().substring(0, value.length)
@@ -143,6 +141,8 @@ const users = {
               age: userAge,
               country: userCountry,
             });
+
+            updateTopFiveListItems();
           },
         },
       ],
