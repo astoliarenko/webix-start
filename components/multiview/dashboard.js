@@ -82,15 +82,9 @@ const datatable = {
   },
   scheme: {
     $init: (obj) => {
-      // console.log(obj);
       obj.categoryId = getRandomIntInclusive(1, filmCategoryCollection.getLastId());
     },
-    // $change: (obj) => {
-      // if (!obj.categoryId) {
-      //   obj.categoryId = getRandomIntInclusive(1, filmCategoryCollection.getLastId());
-      // }
-    // }
-  },
+  },  
 };
 
 const dashboard = {

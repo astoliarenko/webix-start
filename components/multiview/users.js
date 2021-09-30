@@ -20,11 +20,9 @@ const userChart = {
   id: userChartId,
   type: "bar",
   value: "#countCountry#",
-  // label: "#age#",
   barWidth: 35,
   radius: 0,
   gradient: "falling",
-  // url: "./data/users.json",
   xAxis: {
     template: "#country#",
     title: "Country",
@@ -32,8 +30,7 @@ const userChart = {
   yAxis: {
     start: 0,
     end: 10,
-    step: 2,
-    //!!если будет больше 10 то не покажет, пофиксить потом нужно
+    step: 2
   },
 };
 
@@ -50,42 +47,16 @@ const userList = {
   select: true,
   scrollX: false,
   maxHeight: 200,
-  // url: "./data/users.json",
   onClick: {
     "user-list-close": function (e, id) {
       usersCollection.remove(id);
-      //this.remove(id);
-      // в условии написано опасаться напрямую изменять коллекцию, а я это и делаю)
-      updateTopFiveListItems();
       return false;
     },
-  },
-  on: {
-    "data->onAfterFilter": updateTopFiveListItems,
-    "data->onAfterSort": updateTopFiveListItems,
-    // "data->onAfterLoad": updateTopFiveListItems,
-  },
-  // ready: updateTopFiveListItems,
-  ready: () => console.log("ready"),
-  //redy уже не срабатывает
-  scheme: {
-    // to process items when the data changes (includes initial loading as well).
-    $init: updateTopFiveListItems
   },
   rules: {
     name: webix.rules.isNotEmpty,
   },
 };
-
-function updateTopFiveListItems() {
-  const list = $$(userListId);
-  const countOfListItems = list.count();
-  const countTopItems = countOfListItems > 5 ? 5 : countOfListItems;
-  list.clearCss(userListHeadStyle);
-  for (let i = 0; i < countTopItems; i++) {
-    list.addCss(list.data.order[i], userListHeadStyle);
-  }
-}
 
 const users = {
   id: "Users",
@@ -103,7 +74,6 @@ const users = {
                 (item) =>
                   value === item.name.toLowerCase().substring(0, value.length)
               );
-              updateTopFiveListItems();
             },
           },
         },
@@ -141,8 +111,6 @@ const users = {
               age: userAge,
               country: userCountry,
             });
-
-            updateTopFiveListItems();
           },
         },
       ],

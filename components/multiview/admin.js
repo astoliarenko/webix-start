@@ -34,9 +34,6 @@ function clearForm() {
   });
 }
 
-//формы и кнопку можно импортить из form.js, немного изменив функцию (изменить входные параметры) и перезаписав id кнопок
-//ну и не забыть про message - заменить текст (те тоже параметром передать в функ можно)
-
 export const adminDatatableId = "admin-datatable";
 export const adminFormId = "admin-form";
 const datatable = {
@@ -65,16 +62,12 @@ const datatable = {
   ],
   onClick: {
     removeItemDatatable: function (e, id) {
-      // console.log(this.getSelectedId(), "and id", id);
       const mainForm = $$(adminFormId);
       if (this.getSelectedId() && this.getSelectedId().row === id.row) {
         mainForm.clear();
         mainForm.clearValidation();
       }
-      //   this.remove(id);
-      //   filmCategoryCollection.remove($$(adminFormId).getSelectedId());
       filmCategoryCollection.remove(id);
-      //желательно бы переназначить id по порядку после удаления элементе
       return false;
     },
   },
@@ -89,19 +82,12 @@ const form = {
     {
       margin: 10,
       rows: [
-        // {
-        //   view: "text",
-        //   label: "Id",
-        //   id: "inpId",
-        //   name: "id",
-        //   invalidMessage: "Id must not be empty",
-        // },
         {
           view: "text",
           label: "Category",
           id: "inpCategory",
           name: "value",
-          invalidMessage: "Current category",
+          invalidMessage: "Category is not correct",
         },
         {
           margin: 10,
@@ -115,12 +101,18 @@ const form = {
     },
     {},
   ],
-  //   rules: {
-  //     id: webix.rules.isNotEmpty,
-  //     value: (value) => {
-  //       return value > 1970 && value <= new Date().getFullYear();
-  //     },
-  //   },
+  rules: {
+    value: (value) => {
+      const regexp = /[a-z]/i;
+      let i = 0;
+      value.split("").forEach((item) => {
+        if (!item.match(regexp)) {
+          i = 1;
+        }
+      });
+      return !i;
+    },
+  },
   on: {
     onValidationError: function (key) {
       webix.message({ text: `${key} field is incorrect`, type: "error" });
