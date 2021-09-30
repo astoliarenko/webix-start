@@ -1,4 +1,5 @@
 import { getRandomIntInclusive} from "../../reusableFunc/reusableFunc.js";
+import { usersCollection } from "../../collections/collections.js";
 
 const userListHeadStyle = "user_list-head";
 export const userChartId = "user-chart";
@@ -23,7 +24,7 @@ const userChart = {
   barWidth: 35,
   radius: 0,
   gradient: "falling",
-  url: "./data/users.js",
+  // url: "./data/users.json",
   xAxis: {
     template: "#country#",
     title: "Country",
@@ -49,10 +50,10 @@ const userList = {
   select: true,
   scrollX: false,
   maxHeight: 200,
-  url: "./data/users.js",
+  // url: "./data/users.json",
   onClick: {
     "user-list-close": function (e, id) {
-      this.remove(id);
+      usersCollection.remove(id);
       updateTopFiveListItems();
       return false;
     },
@@ -62,6 +63,7 @@ const userList = {
     "data->onAfterSort": updateTopFiveListItems,
   },
   ready: updateTopFiveListItems,
+  //redy уже не срабатывает
   scheme: {
     // to process items when the data changes (includes initial loading as well).
     $change: (obj) => {
@@ -136,7 +138,7 @@ const users = {
             const userAge = getRandomIntInclusive(1, 100);
             const userCountry = countryList[idRandomCountry - 1].value;
 
-            $$(userListId).add({
+            usersCollection.add({
               name: newUserName,
               age: userAge,
               country: userCountry,

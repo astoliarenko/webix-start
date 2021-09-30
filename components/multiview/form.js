@@ -1,5 +1,6 @@
 import { roundNumber } from "../../reusableFunc/reusableFunc.js";
 import { datatableId } from "./dashboard.js";
+import { filmCategoryCollection } from "../../collections/collections.js";
 
 export const mainFormId = "main-form";
 
@@ -72,6 +73,12 @@ const form = {
           id: "inpVotes",
           name: "votes",
           invalidMessage: "Votes must be less than 100000",
+        },
+        {
+          view: "richselect",
+          label: "Category",
+          name: "categoryId",
+          options: filmCategoryCollection,
         },
         {
           margin: 10,

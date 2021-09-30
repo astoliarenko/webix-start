@@ -1,16 +1,10 @@
 import form from "./form.js";
 import { mainFormId } from "./form.js";
 import { roundNumber, getRandomIntInclusive } from "../../reusableFunc/reusableFunc.js";
+import { filmCategoryCollection } from "../../collections/collections.js";
 
 export const datatableId = "main-datatable";
 export const tabbarId = "tabbar";
-
-const categories = [
-  { id: 1, value: "Drama" },
-  { id: 2, value: "Fiction" },
-  { id: 3, value: "Comedy" },
-  { id: 4, value: "Horror" },
-];
 
 const tabbar = {
   view: "tabbar",
@@ -51,7 +45,7 @@ const datatable = {
     {
       id: "categoryId",
       header: ["Category", { content: "selectFilter" }],
-      collection: categories,
+      collection: filmCategoryCollection,
     },
     { id: "rating", header: ["Ratings", { content: "textFilter" }] },
     {
@@ -89,8 +83,16 @@ const datatable = {
   scheme: {
     $init: (obj) => {
       // console.log(obj);
-      obj.categoryId = getRandomIntInclusive(1, 4);
+      // obj.categoryId = getRandomIntInclusive(1, 4);
+      obj.categoryId = getRandomIntInclusive(1, filmCategoryCollection.getLastId());
+      console.log("инициализация");
     },
+    // $change: (obj) => {
+      // if (!obj.categoryId) {
+      //   obj.categoryId = getRandomIntInclusive(1, filmCategoryCollection.getLastId());
+      // }
+    //   console.log("инициализация 2");
+    // }
   },
 };
 

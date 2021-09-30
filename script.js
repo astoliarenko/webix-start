@@ -2,10 +2,11 @@ import multiview from "./components/multiview/index.js";
 import { mainFormId } from "./components/multiview/form.js";
 import { userListId,userChartId } from "./components/multiview/users.js";
 import { mainMultiviewProductsId } from "./components/multiview/products.js";
+import { filmCategoryCollection, usersCollection } from "./collections/collections.js";
+import { adminDatatableId, adminFormId } from "./components/multiview/admin.js";
+import { datatableId, tabbarId } from "./components/multiview/dashboard.js";
 
 const menuListId = "main-list";
-const datatableId = "main-datatable";
-const dashboardTabbar = "tabbar";
 
 const label = {
   view: "label",
@@ -104,7 +105,7 @@ webix.ready(function () {
   $$(menuListId).select("Dashboard");
   $$(mainFormId).bind($$(datatableId));
   $$(datatableId).registerFilter(
-    $$(dashboardTabbar),
+    $$(tabbarId),
     {
       columnId: "year",
       compare: (value, filter) => {
@@ -126,7 +127,9 @@ webix.ready(function () {
     }
   );
   // const userChartView = $$(userChartId);
-  $$(userChartId).sync($$(userListId), () => {
+  $$(userListId).sync(usersCollection);
+  $$(userChartId).sync(usersCollection, () => {
+  // $$(userChartId).sync($$(userListId), () => {
     $$(userChartId).group({
       by: "country",
       map: {
@@ -135,4 +138,7 @@ webix.ready(function () {
     });
   });
   // webix.debug({ events:true });
+  $$(adminFormId).bind($$(adminDatatableId));
+  $$(adminDatatableId).sync(filmCategoryCollection);
+  // console.log(filmCategoryCollection);
 });
