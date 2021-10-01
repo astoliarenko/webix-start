@@ -1,6 +1,9 @@
 import form from "./form.js";
 import { mainFormId } from "./form.js";
-import { roundNumber, getRandomIntInclusive } from "../../reusableFunc/reusableFunc.js";
+import {
+  roundNumber,
+  getRandomIntInclusive,
+} from "../../reusableFunc/reusableFunc.js";
 import { filmCategoryCollection } from "../../collections/collections.js";
 
 export const datatableId = "main-datatable";
@@ -82,9 +85,12 @@ const datatable = {
   },
   scheme: {
     $init: (obj) => {
-      obj.categoryId = getRandomIntInclusive(1, filmCategoryCollection.getLastId());
+      obj.categoryId = getRandomIntInclusive(
+        1,
+        filmCategoryCollection.getLastId()
+      );
     },
-  },  
+  },
 };
 
 const dashboard = {

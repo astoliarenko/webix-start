@@ -104,13 +104,13 @@ const form = {
   rules: {
     value: (value) => {
       const regexp = /[a-z]/i;
-      let i = 0;
+      let i = true;
       value.split("").forEach((item) => {
         if (!item.match(regexp)) {
-          i = 1;
+          i = false;
         }
       });
-      return !i;
+      return i;
     },
   },
   on: {
